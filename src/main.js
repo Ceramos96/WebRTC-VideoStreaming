@@ -1,6 +1,6 @@
 'use strict';
 
-require('isomorphic-fetch');
+//import 'isomorphic-fetch';
 
 var startButton = document.getElementById('startButton');
 var callButton = document.getElementById('callButton');
@@ -327,12 +327,12 @@ function hangup() {
   callButton.disabled = false;
 }
 
-var Dropbox = require('dropbox').Dropbox;
-var dbx = new Dropbox({ accessToken: 'Xk4IHmnAe1AAAAAAAAAAM4Mh0VrFz1bPhEmvSbqgNU7Kt44JMy90o18a8GM0xNOR' });
-dbx.filesListFolder({path: ''})
-  .then(function(response) {
-    console.log(response);
-  })
-  .catch(function(error) {
-    console.log(error);
-  });
+// import { Dropbox } from 'dropbox';
+// var dbx = new Dropbox({ accessToken: 'Xk4IHmnAe1AAAAAAAAAAM4Mh0VrFz1bPhEmvSbqgNU7Kt44JMy90o18a8GM0xNOR' });
+// dbx.filesListFolder({path: ''})
+//   .then(function(response) {
+//     console.log(response);
+//   })
+//   .catch(function(error) {
+//     console.log(error);
+//   });
