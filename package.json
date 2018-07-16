@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Ceramos96/WebRTC-VideoStreaming#readme",
   "dependencies": {
+    "dropbox": "^4.0.7",
     "ejs": "^2.6.1",
     "express": "^4.16.3",
     "trace": "^3.1.0"

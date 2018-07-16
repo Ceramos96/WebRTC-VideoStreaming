@@ -1,11 +1,18 @@
 'use strict';
 
+require('isomorphic-fetch');
+
 var startButton = document.getElementById('startButton');
 var callButton = document.getElementById('callButton');
 var hangupButton = document.getElementById('hangupButton');
+var recordButton = document.getElementById('recordButton');
+var downloadButton = document.getElementById('downloadButton');
 callButton.disabled = true;
 hangupButton.disabled = true;
+recordButton.disabled = true;
+downloadButton.disabled = true;
 startButton.onclick = start;
+recordButton.onclick = record;
 callButton.onclick = call;
 hangupButton.onclick = hangup;
 
@@ -28,6 +35,21 @@ remoteVideo.addEventListener('loadedmetadata', function() {
     'px,  videoHeight: ' + this.videoHeight + 'px');
 });
 
+downloadButton.addEventListener('click', () => {
+  const blob = new Blob(recordedBlobs, {type: 'video/webm'});
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = url;
+  a.download = 'test.webm';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }, 100);
+});
+
 remoteVideo.onresize = function() {
   trace('Remote video size changed to ' +
     remoteVideo.videoWidth + 'x' + remoteVideo.videoHeight);
@@ -43,6 +65,8 @@ remoteVideo.onresize = function() {
 var localStream;
 var pc1;
 var pc2;
+var recordedBlobs;
+var mediaRecorder;
 var offerOptions = {
   offerToReceiveAudio: 1,
   offerToReceiveVideo: 1
@@ -74,6 +98,17 @@ function start() {
   .catch(function(e) {
     alert('getUserMedia() error: ' + e.name);
   });
+}
+
+function record(){
+  if (recordButton.textContent === 'Start Recording') {
+    startRecording();
+  } else {
+    stopRecording();
+    recordButton.textContent = 'Start Recording';
+    //playButton.disabled = false;
+    downloadButton.disabled = false;
+  }
 }
 
 function call() {
@@ -127,6 +162,58 @@ function call() {
   );
 }
 
+
+function handleDataAvailable(event) {
+  if (event.data && event.data.size > 0) {
+    recordedBlobs.push(event.data);
+  }
+}
+
+function handleStop(event) {
+  console.log('Recorder stopped: ', event);
+}
+
+
+function startRecording() {
+  recordedBlobs = [];
+  let options = {mimeType: 'video/webm;codecs=vp9'};
+  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+    console.log(options.mimeType + ' is not Supported');
+    options = {mimeType: 'video/webm;codecs=vp8'};
+    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      console.log(options.mimeType + ' is not Supported');
+      options = {mimeType: 'video/webm'};
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        console.log(options.mimeType + ' is not Supported');
+        options = {mimeType: ''};
+      }
+    }
+  }
+  try {
+    var receivedStream = pc2.getRemoteStreams();
+    mediaRecorder = new MediaRecorder( receivedStream[0], options);
+  } catch (err) {
+    console.error(`Exception while creating MediaRecorder: ${err}`);
+    alert(`Exception while creating MediaRecorder: ${err}. mimeType: ${options.mimeType}`);
+    return;
+  }
+  console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+  recordButton.textContent = 'Stop Recording';
+  //playButton.disabled = true;
+  downloadButton.disabled = true;
+  mediaRecorder.onstop = handleStop;
+  mediaRecorder.ondataavailable = handleDataAvailable;
+  mediaRecorder.start(10); // collect 10ms of data
+  console.log('MediaRecorder started', mediaRecorder);
+}
+
+function stopRecording() {
+  mediaRecorder.stop();
+  console.log('Recorded Blobs: ', recordedBlobs);
+  remoteVideo.controls = true;
+}
+
+
 function onCreateSessionDescriptionError(error) {
   trace('Failed to create session description: ' + error.toString());
 }
@@ -173,6 +260,13 @@ function gotRemoteStream(e) {
   if (remoteVideo.srcObject !== e.streams[0]) {
     remoteVideo.srcObject = e.streams[0];
     trace('pc2 received remote stream');
+    recordButton.disabled = false;
+    var steas = pc2.getRemoteStreams();
+    console.log('Received Stream');
+    for (var receivedstr of steas) {
+      console.log("Remote streams: " + receivedstr);
+    }
+    console.log('end of data');
   }
 }
 
@@ -232,3 +326,13 @@ function hangup() {
   hangupButton.disabled = true;
   callButton.disabled = false;
 }
+
+var Dropbox = require('dropbox').Dropbox;
+var dbx = new Dropbox({ accessToken: 'Xk4IHmnAe1AAAAAAAAAAM4Mh0VrFz1bPhEmvSbqgNU7Kt44JMy90o18a8GM0xNOR' });
+dbx.filesListFolder({path: ''})
+  .then(function(response) {
+    console.log(response);
+  })
+  .catch(function(error) {
+    console.log(error);
+  });
