@@ -87,6 +87,8 @@ function gotStream(stream) {
   callButton.disabled = false;
 }
 
+var constraints = {video: {mediaSource: "screen", width: 320, height: 200}}
+
 function start() {
   trace('Requesting local stream');
   startButton.disabled = true;
