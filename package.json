@@ -25,6 +25,8 @@
     "trace": "^3.1.0"
   },
   "devDependencies": {
-    "webpack-cli": "^3.1.0"
+    "webpack": "^4.16.1",
+    "webpack-cli": "^3.1.0",
+    "webpack-command": "^0.4.1"
   }
 }
