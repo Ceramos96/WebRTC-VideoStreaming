@@ -22,27 +22,6 @@ const offerOptions = {
   offerToReceiveVideo: 1
 };
 
-var MediaStreamRecorder = require('msr');
-
-    console.log('require-msr', MediaStreamRecorder);
-
-    console.log('\n\n-------\n\n');
-
-    var recorder = new MediaStreamRecorder({});
-    console.log('MediaStreamRecorder', recorder);
-
-    console.log('\n\n-------\n\n');
-
-    var multiStreamRecorder = new MediaStreamRecorder.MultiStreamRecorder([]);
-    console.log('MultiStreamRecorder', multiStreamRecorder);
-
-
-function trace(arg) {
-  var now = (window.performance.now() / 1000).toFixed(3);
-  console.log(now + ': ', arg);
-}
-
-
 function gotStream(stream) {
   trace('Received local stream');
   video1.srcObject = stream;
