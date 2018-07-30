@@ -19,6 +19,13 @@ hangupButton.onclick = hangup;
 var startTime;
 var localVideo = document.getElementById('localVideo');
 var remoteVideo = document.getElementById('remoteVideo');
+var audioContext = new AudioContext();
+var audioContextDestination = audioContext.createMediaStreamDestination();
+var song = document.querySelector('audio#song');
+var localaudioStream;
+var mp3Stream;
+var mp3Source = audioContext.createMediaElementSource(song);
+mp3Source.connect(audioContext.destination);
 
 function trace(arg) {
     var now = (window.performance.now() / 1000).toFixed(3);
@@ -36,12 +43,12 @@ remoteVideo.addEventListener('loadedmetadata', function() {
 });
 
 downloadButton.addEventListener('click', () => {
-  const blob = new Blob(recordedBlobs, {type: 'video/webm'});
+  const blob = new Blob(recordedBlobs, {type: 'audio/ogg'});
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.style.display = 'none';
   a.href = url;
-  a.download = 'test.webm';
+  a.download = 'test.mp3';
   document.body.appendChild(a);
   a.click();
   setTimeout(() => {
@@ -84,6 +91,7 @@ function gotStream(stream) {
   trace('Received local stream');
   localVideo.srcObject = stream;
   localStream = stream;
+  localaudioStream = stream.getAudioTracks()[0];
   callButton.disabled = false;
 }
 
@@ -100,6 +108,17 @@ function start() {
   .catch(function(e) {
     alert('getUserMedia() error: ' + e.name);
   });
+  navigator.mediaDevices.getUserMedia({audio:true})
+.then(gotAudioStream)
+.catch((e)=>{
+    console.log(e)
+})
+}
+
+function gotAudioStream(stream) {
+    console.log('Received audio Stream');
+    recordButton.disabled = false;
+    localaudioStream = stream;
 }
 
 function record(){
@@ -178,28 +197,10 @@ function handleStop(event) {
 
 function startRecording() {
   recordedBlobs = [];
-  let options = {mimeType: 'video/webm;codecs=vp9'};
-  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-    console.log(options.mimeType + ' is not Supported');
-    options = {mimeType: 'video/webm;codecs=vp8'};
-    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-      console.log(options.mimeType + ' is not Supported');
-      options = {mimeType: 'video/webm'};
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        console.log(options.mimeType + ' is not Supported');
-        options = {mimeType: ''};
-      }
-    }
-  }
-  try {
-    var receivedStream = pc2.getRemoteStreams();
-    mediaRecorder = new MediaRecorder( receivedStream[0], options);
-  } catch (err) {
-    console.error(`Exception while creating MediaRecorder: ${err}`);
-    alert(`Exception while creating MediaRecorder: ${err}. mimeType: ${options.mimeType}`);
-    return;
-  }
-  console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+  var localAudioStreamSource = audioContext.createMediaStreamSource(localaudioStream);
+  mp3Source.connect(audioContextDestination);
+  localAudioStreamSource.connect(audioContextDestination);
+  mediaRecorder = new MediaRecorder( audioContextDestination.stream, {});
   recordButton.textContent = 'Stop Recording';
   //playButton.disabled = true;
   downloadButton.disabled = true;
