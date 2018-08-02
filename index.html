@@ -8,7 +8,7 @@
         <video id = "localVideo" width="300" controls autoplay muted></video>
         <video id = "remoteVideo" width="300" controls autoplay></video>
         <audio id="song" controls crossorigin="anonymous"><source src="src/Nguoi-La-Oi-Karik-Orange-Superbrothers.mp3"></audio>   
-        <div>
+        <div id = "container">
             <button id="startButton">Start</button>
             <button id="callButton">Call</button>
             <button id="recordButton">Start Recording</button>
@@ -16,7 +16,9 @@
             <button id="hangupButton">Hang Up</button>
           </div>
     </body>
-    
+
+
+    <script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="bizi6s8jex0p8af"></script>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <script src = 'src/audiorecord.js'></script>
 
