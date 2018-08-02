@@ -2,19 +2,28 @@
 <html lang = "en">
     <head>
         <title>WebRTC Demo</title>
+        <link rel="stylesheet" href="./css/main.css" />
     </head>
     <body>
-        <h1>WebRTC Single Peer Connection Demo</h1>
-        <video id = "localVideo" width="300" controls autoplay muted></video>
-        <video id = "remoteVideo" width="300" controls autoplay></video>
-        <audio id="song" controls crossorigin="anonymous"><source src="src/Nguoi-La-Oi-Karik-Orange-Superbrothers.mp3"></audio>   
-        <div id = "container">
-            <button id="startButton">Start</button>
-            <button id="callButton">Call</button>
-            <button id="recordButton">Start Recording</button>
-            <button id="downloadButton">Download</button>
-            <button id="hangupButton">Hang Up</button>
-          </div>
+        <h1>Audio Stream Recording Module</h1>
+        <div class="div1">
+            <div class="vid">
+                <video id = "localVideo" width="300" controls autoplay muted></video>
+                <video id = "remoteVideo" width="300" controls autoplay></video>
+            </div>
+            <div class = "song">
+                <audio id="song" controls crossorigin="anonymous"><source src="src/Nguoi-La-Oi-Karik-Orange-Superbrothers.mp3"></audio>   
+            </div>
+        </div>
+        <div id="container" class="div3">
+            <div>
+                <button id="startButton">Start</button>
+                <button id="callButton">Call</button>
+                <button id="hangupButton">Hang Up</button>
+                <button id="recordButton">Start Recording</button>
+                <button id="downloadButton">Download</button>
+            </div>
+        </div>
     </body>
 
 
