@@ -67,7 +67,7 @@ remoteVideo.addEventListener('loadedmetadata', function() {
 });
 
 downloadButton.addEventListener('click', () => {
-  const blob = new Blob(recordedBlobs, {type: 'audio/ogg'});
+  const blob = new Blob(recordedBlobs, {type: 'audio/webm'});
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.style.display = 'none';
@@ -115,7 +115,6 @@ function gotStream(stream) {
   trace('Received local stream');
   localVideo.srcObject = stream;
   localStream = stream;
-  localaudioStream = stream.getAudioTracks()[0];
   callButton.disabled = false;
 }
 
@@ -132,17 +131,6 @@ function start() {
   .catch(function(e) {
     alert('getUserMedia() error: ' + e.name);
   });
-  navigator.mediaDevices.getUserMedia({audio:true})
-.then(gotAudioStream)
-.catch((e)=>{
-    console.log(e)
-})
-}
-
-function gotAudioStream(stream) {
-    console.log('Received audio Stream');
-    recordButton.disabled = false;
-    localaudioStream = stream;
 }
 
 function record(){
@@ -186,6 +174,7 @@ function call() {
   pc2.oniceconnectionstatechange = function(e) {
     onIceStateChange(pc2, e);
   };
+
   pc2.ontrack = gotRemoteStream;
 
   localStream.getTracks().forEach(
@@ -221,7 +210,8 @@ function handleStop(event) {
 
 function startRecording() {
   recordedBlobs = [];
-  var localAudioStreamSource = audioContext.createMediaStreamSource(localaudioStream);
+  var option = {mimeType: 'audio/webm'};
+  var localAudioStreamSource = audioContext.createMediaStreamSource(localStream);
   mp3Source.connect(audioContextDestination);
   localAudioStreamSource.connect(audioContextDestination);
   mediaRecorder = new MediaRecorder( audioContextDestination.stream, {});
@@ -238,10 +228,11 @@ function stopRecording() {
   mediaRecorder.stop();
   console.log('Recorded Blobs: ', recordedBlobs);
   remoteVideo.controls = true;
-  const blob = new Blob(recordedBlobs, {type: 'audio/ogg'});
+  const blob = new Blob(recordedBlobs, {type: 'audio/webm'});
   const url = window.URL.createObjectURL(blob);
   //var url;
   blobToDataURL(blob, function(dataurl){
+    console.log('Data URL: ', dataurl);
     var dropboxButton = Dropbox.createSaveButton(dataurl, 'Test.mp3', dropboxOptions);
   document.getElementById("container").appendChild(dropboxButton);
   });
